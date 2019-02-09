@@ -14,6 +14,8 @@ String myMacAddress = "";
 String metaRedirUrl = "";
 String referer = "";
 String postData = "";
+const char* AUTH_NAME = "test";
+String AUTH_VALUE = "test";
 
 unsigned long delayTime = 10;
 
@@ -82,7 +84,7 @@ void PrintConnectionStatus(int code)
       break;
 
     case WL_DISCONNECTED:
-      Serial.println("Disconnected");
+      Serial.println("Connecting...");
       break;
   }
 }
@@ -209,7 +211,7 @@ PASSWORD_INPUT:
 
   Serial.println("<InitializeConnectionEst>: Connection Established");
   Pinger pinger;
-  pinger.Ping("http://cos-ar.herokuapp.com/");
+  pinger.Ping("http://cos-ar.herokuapp.com/AHub");
   
   return true;
 }
@@ -277,26 +279,31 @@ bool SendPacket(String ServerURL, String Content, char IdentifyChar, String& Res
 	Client.begin(ServerURL);
 	Client.addHeader("Content-Type", "application/json");
 
-	int code = Client.POST(Content);
+	int code = Client.GET();
 
 	if (code > 0)
 	{
+    Serial.println("<SendPacket>: Request code recieved: " + String(code));
 		Success = true;
 		String value = Client.getString();
+    String authCode = Client.header(AUTH_NAME);
+    Serial.println("<SendPacket>: <AuthCode>: " + authCode);
 
 		// The server we connected is our own since we got back what we are expecting
-		if (value[0] == IdentifyChar)
+		if (authCode == AUTH_VALUE)
 		{
 			bIsCaptive = false;
       Result = value.substring(1);
 		}
+    else if (code == 503 || code == 400)
+    {
+      bIsCaptive = false;
+      Serial.println("<SendPacket>: Server could not be reached!");
+    }
 		else
 		{
 			bIsCaptive = true;
 		}
-
-		Serial.println("<SendPacket>: Request code recieved: " + String(code));
-
 	}
 
 	return Success;
