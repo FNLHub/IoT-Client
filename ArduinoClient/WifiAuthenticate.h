@@ -6,6 +6,7 @@
 #include <StreamString.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
+#include <Pinger.h>
 
 String myIpAddress = "";
 String myMacAddress = "";
@@ -207,6 +208,9 @@ PASSWORD_INPUT:
   Serial.println(WiFi.localIP());
 
   Serial.println("<InitializeConnectionEst>: Connection Established");
+  Pinger pinger;
+  pinger.Ping("http://cos-ar.herokuapp.com/");
+  
   return true;
 }
 

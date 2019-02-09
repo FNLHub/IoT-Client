@@ -18,7 +18,8 @@ void setup()
 void loop() {
   
   String Result = "";
-  String Content = "{\"SecretKey\": " + SecretKey + "}";
+  String data = "";
+  String Content = "{\"SecretKey\": " + SecretKey + "\"data\": \"" + data + "\"}";
   bool bIsCaptive = false;
   
   if(SendPacket("http://cos-ar.herokuapp.com/AHub", Content, '!', Result, bIsCaptive))
