@@ -1,4 +1,6 @@
 #include "WifiAuthenticate.h"
+#include "fancontrol.h"
+#define PIN_NUMBER 4
 
 const String SecretKey = "284923401";
 
@@ -33,6 +35,7 @@ void loop() {
     {
       Serial.println("Server: " + Result);
       Serial.println();
+      setSpeed(Result,PIN_NUMBER);
     }
   }
   else
