@@ -7,9 +7,10 @@ void setSpeed(String inputVal, int pinNum) {
 	analogWrite(pinNum, PWMVal);
 }
 
-void flashLight(pinNum) {
-  digitalWrite(pinNumber, HIGH);
+void flashLight(int pinNum) {
+  digitalWrite(pinNum, HIGH);
   delay(20);
-  digitalWrite(pinNumber, LOW);
+  digitalWrite(pinNum, LOW);
 }
+
 #endif 

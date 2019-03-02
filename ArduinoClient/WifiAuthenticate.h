@@ -138,41 +138,42 @@ void ListNetworks()
 
 // Initialises the WiFi module
 bool BeginConnection() {
-  myIpAddress = WiFi.localIP().toString();
-  myMacAddress = WiFi.macAddress();
- Serial.println("<InitializeConnectionEst>: Setting up wifi");
+  // myIpAddress = WiFi.localIP().toString();
+  // myMacAddress = WiFi.macAddress();
+ // Serial.println("<InitializeConnectionEst>: Setting up wifi");
 
-  if(WiFi.status() == WL_NO_SHIELD)
-  {
-    Serial.println("No Wifi shield was found");
-  }
+  // if(WiFi.status() == WL_NO_SHIELD)
+  // {
+  //   Serial.println("No Wifi shield was found");
+  // }
  
-  ListNetworks();
-  Serial.println("/////////////////////////////");
+  // ListNetworks();
+  // Serial.println("/////////////////////////////");
 
-  // Get connection info
-  Serial.print("Please enter in an SSID: ");
-  String ssid = GetUserInput();
-  Serial.println(ssid);
+   // Get connection info
+  // Serial.print("Please enter in an SSID: ");
+  // String ssid = GetUserInput();
+  // Serial.println(ssid);
 
 PASSWORD_INPUT:
 
-  Serial.print("Please enter in the password (Type -none if no password is needed): ");
-  String pw = GetUserInput();
-  if(pw == "-none")
-  {
-    pw = "";
-  }
+  // Serial.print("Please enter in the password (Type -none if no password is needed): ");
+  // String pw = GetUserInput();
+  // if(pw == "-none")
+  // {
+//     pw = "";
+ //  }
   
-  for(int x = 0; x < pw.length(); x++)
-    Serial.print("*");
+  // for(int x = 0; x < pw.length(); x++)
+    // Serial.print("*");
 
-  Serial.println();
-  Serial.println("/////////////////////////////");
+ //  Serial.println();
+//   Serial.println("/////////////////////////////");
 
   // Begin connection
-  Serial.println("<InitializeConnectionEst>: Connecting to: " + ssid);
-  WiFi.begin(&ssid[0], &pw[0]);
+ //  Serial.println("<InitializeConnectionEst>: Connecting to: " + ssid);
+  // WiFi.begin(&ssid[0], &pw[0]);
+  WiFi.begin("COS_PUB", "");
 
   // Stop trying if an error orrurs or it connects
   while (!(WiFi.status() == WL_CONNECTED || WiFi.status() == WL_CONNECT_FAILED || WiFi.status() == WL_NO_SSID_AVAIL))
