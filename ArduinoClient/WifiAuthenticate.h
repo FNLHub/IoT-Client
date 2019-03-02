@@ -14,8 +14,9 @@ String myMacAddress = "";
 String metaRedirUrl = "";
 String referer = "";
 String postData = "";
-const char* AUTH_NAME = "test";
-String AUTH_VALUE = "test";
+int numHeaders = 1;
+const char* HeaderKeys [] = {"Auth"};
+String AuthValue = "1234";
 
 unsigned long delayTime = 10;
 
@@ -136,7 +137,7 @@ void ListNetworks()
 }
 
 // Initialises the WiFi module
-bool InitializeConnectionEst() {
+bool BeginConnection() {
   myIpAddress = WiFi.localIP().toString();
   myMacAddress = WiFi.macAddress();
  Serial.println("<InitializeConnectionEst>: Setting up wifi");
@@ -216,60 +217,8 @@ PASSWORD_INPUT:
   return true;
 }
 
-String escapeFormField(const String& input) {
-  StreamString escaped;
-  for (char ch : input) {
-    if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')) {
-      escaped.write(ch);
-    } else {
-      escaped.printf("%%%02x", ch);
-    }
-  }
-  return escaped;
-}
-
-// Extracts info from html
-String extractHtmlAttribute(const String& tag, String attr, bool form = true) {
-	String methodName = "[ExtHtmlAttr] - ";
-	String filterAttr = "=\"";
-	String lastIndex = "\"";
-
-
-	Serial.println(methodName + "Hello" + tag);
-	Serial.println(methodName + "attr: " + attr);
-
-	if (!form)
-	{
-		filterAttr = "=";
-		lastIndex = "'>";
-	}
-
-	attr += filterAttr;
-	Serial.println(methodName + "attr: " + attr);
-
-	int first = tag.indexOf(attr);
-
-	Serial.println(methodName + "first: " + first);
-
-	if (first < 0) {
-		return "";
-	}
-	first += attr.length();
-	Serial.println(methodName + "first + attrLength: " + first);
-
-	int last = tag.indexOf(lastIndex, first);
-
-	Serial.println(methodName + "last: " + last);
-
-	if (last < 0) {
-		return "";
-	}
-
-	return tag.substring(first, last);
-}
-
-// Sends info to a given url
-bool SendPacket(String ServerURL, String Content, char IdentifyChar, String& Result, bool& bIsCaptive)
+// Gets info from a given url
+bool GetFromServer(String ServerURL, String& Result, bool& bIsCaptive)
 {
   HTTPClient Client;
 	bool Success = false;
@@ -278,6 +227,7 @@ bool SendPacket(String ServerURL, String Content, char IdentifyChar, String& Res
 	// Send Login Packet
 	Client.begin(ServerURL);
 	Client.addHeader("Content-Type", "application/json");
+  Client.collectHeaders(HeaderKeys, numHeaders);
 
 	int code = Client.GET();
 
@@ -286,16 +236,17 @@ bool SendPacket(String ServerURL, String Content, char IdentifyChar, String& Res
     Serial.println("<SendPacket>: Request code recieved: " + String(code));
 		Success = true;
 		String value = Client.getString();
-    String authCode = Client.header(AUTH_NAME);
+    String authCode = Client.header(HeaderKeys[0]);
+    Client.end();
     Serial.println("<SendPacket>: <AuthCode>: " + authCode);
 
 		// The server we connected is our own since we got back what we are expecting
-		if (authCode == AUTH_VALUE)
+		if (authCode == AuthValue)
 		{
 			bIsCaptive = false;
-      Result = value.substring(1);
+      Result = value;
 		}
-    else if (code == 503 || code == 400)
+    else if (code == 503 || code == 400 || code == 404)
     {
       bIsCaptive = false;
       Serial.println("<SendPacket>: Server could not be reached!");
@@ -310,17 +261,17 @@ bool SendPacket(String ServerURL, String Content, char IdentifyChar, String& Res
 }
 
 void PassThroughCaptive() {
-  HTTPClient client;
+  HTTPClient Client;
   String url = "http://wifi.cos.edu/auth/index.html/u";
-  client.begin(url);
-  client.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  Client.begin(url);
+  Client.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
   String payload = "email=FNL%40cos.edu&cmd=authenticate&Login=I+ACCEPT";
-  client.POST(payload);
+  Client.POST(payload);
 
-  Serial.println("<PassThroughCaptive>: Sending data packet 2 to captive-------------------------------");
-  String value = client.getString();
-  Serial.println(value);
+  Serial.println("<PassThroughCaptive>: Sent login to captive");
+  String value = Client.getString();
+  Client.end();
   delay(1000);
 }
 

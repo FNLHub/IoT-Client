@@ -1,8 +1,7 @@
 #include "WifiAuthenticate.h"
 #include "fancontrol.h"
-#define PIN_NUMBER 4
-
-const String SecretKey = "284923401";
+#define D7 13
+#define D6 12
 
 // Reset Function
 void resetDevice() {
@@ -11,38 +10,40 @@ void resetDevice() {
 
 void setup() 
 {
+  pinMode(D7,OUTPUT);
+  pinMode(D6,OUTPUT);
   Serial.begin(9600);
   while(!Serial);
   delay(100);
-  while(!InitializeConnectionEst());
+  while(!BeginConnection());
 }
 
 void loop() {
   
   String Result = "";
   String data = "";
-  String Content = "{\"SecretKey\": " + SecretKey + "\"data\": \"" + data + "\"}";
   bool bIsCaptive = false;
   
-  if(SendPacket("http://cos-ar.herokuapp.com/AHub", Content, '!', Result, bIsCaptive))
+  if(GetFromServer("http://cos-ar.herokuapp.com/FanSpeed", Result, bIsCaptive))
   {
     if(bIsCaptive)
     {
-      Serial.println("The website is a captive portal");
+      Serial.println("Passing through captive portal...");
       PassThroughCaptive();
+      delay(100);
     }
     else
     {
-      Serial.println("Server: " + Result);
+      flashLight(D6);
+      Serial.println("Server Response: " + Result);
       Serial.println();
-      setSpeed(Result,PIN_NUMBER);
+      setSpeed(Result,D7);
+      delay(60);
     }
   }
   else
   {
-    Serial.println("No internet connection detected! Resetting device...");
-    resetDevice();
+    Serial.println("Connection lost...");
+    delay(60);
   }
-  
-  delay(10000);
 }
