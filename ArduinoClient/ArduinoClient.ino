@@ -2,6 +2,9 @@
 #include "fancontrol.h"
 #define D7 13
 #define D6 12
+#define D5 14
+#define D8 15
+#define OnBoardLED 16
 
 // Reset Function
 void resetDevice() {
@@ -12,6 +15,9 @@ void setup()
 {
   pinMode(D7,OUTPUT);
   pinMode(D6,OUTPUT);
+  pinMode(D8,OUTPUT);
+  pinMode(D5,OUTPUT);
+  pinMode(OnBoardLED,OUTPUT);
   Serial.begin(9600);
   while(!Serial);
   delay(100);
@@ -23,6 +29,13 @@ void loop() {
   String Result = "";
   String data = "";
   bool bIsCaptive = false;
+  flashLight(OnBoardLED);
+
+  int status = WiFi.status();
+  if(status != WL_CONNECTED)
+  {
+    flashLight(D5);
+  }
   
   if(GetFromServer("http://cos-ar.herokuapp.com/FanSpeed", Result, bIsCaptive))
   {
@@ -38,12 +51,13 @@ void loop() {
       Serial.println("Server Response: " + Result);
       Serial.println();
       setSpeed(Result,D7);
-      delay(60);
+      delay(1000);
     }
   }
   else
   {
+    flashLight(D8);
     Serial.println("Connection lost...");
-    delay(60);
+    delay(1000);
   }
 }
