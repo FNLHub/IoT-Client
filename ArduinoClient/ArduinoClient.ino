@@ -1,10 +1,10 @@
 #include "WifiAuthenticate.h"
 #include "fancontrol.h"
-#define D7 13
-#define D6 12
-#define D5 14
-#define D8 15
-#define OnBoardLED 16
+#define SpeedControl 13
+#define L_ResponseObtained 5
+#define L_NotConnected 7
+#define L_ConnectionLost 6
+#define OnBoardLED 2
 
 // Reset Function
 void resetDevice() {
@@ -13,10 +13,10 @@ void resetDevice() {
 
 void setup() 
 {
-  pinMode(D7,OUTPUT);
-  pinMode(D6,OUTPUT);
-  pinMode(D8,OUTPUT);
-  pinMode(D5,OUTPUT);
+  pinMode(SpeedControl,OUTPUT);
+  pinMode(L_ResponseObtained,OUTPUT);
+  pinMode(L_ConnectionLost,OUTPUT);
+  pinMode(L_NotConnected,OUTPUT);
   pinMode(OnBoardLED,OUTPUT);
   Serial.begin(9600);
   while(!Serial);
@@ -34,7 +34,7 @@ void loop() {
   int status = WiFi.status();
   if(status != WL_CONNECTED)
   {
-    flashLight(D5);
+    flashLight(L_NotConnected);
   }
   
   if(GetFromServer("http://cos-ar.herokuapp.com/FanSpeed", Result, bIsCaptive))
@@ -47,16 +47,16 @@ void loop() {
     }
     else
     {
-      flashLight(D6);
+      flashLight(L_ResponseObtained);
       Serial.println("Server Response: " + Result);
       Serial.println();
-      setSpeed(Result,D7);
+      setSpeed(Result,SpeedControl);
       delay(1000);
     }
   }
   else
   {
-    flashLight(D8);
+    flashLight(L_ConnectionLost);
     Serial.println("Connection lost...");
     delay(1000);
   }
